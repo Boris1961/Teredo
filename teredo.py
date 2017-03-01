@@ -30,7 +30,7 @@ builder_class = tree_parsers[forest]
 class class_os(object):
 
     def __init__(self, root="."):
-        self.root = self.node(root, 0)
+        self.root = root
         self.tree = []
         self.objs = []
 
