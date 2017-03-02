@@ -14,67 +14,48 @@
 '''
 
 """
+Классовая зависимость:  <class_os -> Tree -> Node -> Teredo
+
 Словарь устанавливает соответствие между базовым множеством объектов и его классом-обработчиком
 
 tree_parsers - словарь { forest:       --- строка --- базовое множество объектов (лес): "html", "site", "os"...
                         builder_class  --- класс --- атрибуты и методы базового множества
                         }
+
+
+
 """
 
-import os
-tree_parsers = {"os": class_os}
-forest = "os"
-builder_class = tree_parsers[forest]
 
+import os
 
 class class_os(object):
 
-    def __init__(self, root="."):
-        self.root = root
-        self.tree = []
-        self.objs = []
+    def _root(self, descriptor="."):
+        return Node(name = os.path._getfinalpathname(descriptor),
+                    terminal = not os.path.isdir(descriptor),
+                    basename = os.path.basename(descriptor))
 
-    class node(object):
-        def __init__(self, path, id):
-            self.name = path
-            self.basename = os.path.basename(path)
-            self.id = id
-            self.type = "DIR" if os.path.isdir(path) else "FILE"
-
-    def list_of_suns(self, parent):
-        return [get_node(_name = name,
-                         _terminal = not os.path.isdir(name),
-                         basename = os.path.basename(name))
+    def _branches(self, parent):
+        return [Node(name = os.path._getfinalpathname(name),
+                     terminal = not os.path.isdir(name),
+                     basename = os.path.basename(name))
                 for name in os.listdir(parent.name)]
 
+class Tree(class_os):
 
-        for name in os.listdir(dir.name):
-            path = os.path.join(dir.name, name)
-            path_obj = self.node(path, len(self.tree))
-            self.tree += [[dir.id, path_obj.id]]
-            self.objs += [path_obj]
-            if os.path.isdir(path):
-                walk(path_obj)
+    def __init__(self):
+        self.bin_tree = []
+        self.objs = []
+
+    def walk(self,parent):
+        for node in self._branches(parent):
+            if not node.terminal:
+                walk(node)
 
     def find(self,selector):
         return [node_obj for node_obj in self.objs if node_obj.basename.startswith(selector) and node_obj.type == 'DIR']
 
-class builder_class(object):
-
-    def __init__(self):
-        self.tree = []
-        self.objs = []
-
-    def walk(self,node):
-        for
-
-        for name in os.listdir(dir.name):
-            path = os.path.join(dir.name, name)
-            path_obj = self.node(path, len(self.tree))
-            self.tree += [[dir.id, path_obj.id]]
-            self.objs += [path_obj]
-            if os.path.isdir(path):
-                walk(path_obj)
 
 
 """
@@ -86,17 +67,33 @@ class builder_class(object):
 """
 
 
-class Teredo():
-    pass
+class Node(Tree):
+    def __init__(self, parent, **kwargs):
+        self.id = len(Tree.objs)
+        Tree.objs += self
+        if parent: Tree.bin_tree += [(parent.id,self.id)]
+        for attr, value in kwargs.items():
+            setattr(self, attr, value)
 
 
-pars = builder_class("C:\Projects\My-Projects")
+class Teredo(Node):
+    def __init__(self,descriptor):
+        self.root = self._root(descriptor)
+
+
+tree_parsers = {"os": class_os}
+forest = "os"
+builder_class = tree_parsers[forest]
+
+pars = Teredo("C:\Projects\My-Projects")
+
+print(pars.__dir__())
+
+'''
 
 for item in pars.find("p"):
     print(item.basename)
 
-
-'''
 for item in pars.objs:
     print(item.id, ' =====> ', item.basename)
 
