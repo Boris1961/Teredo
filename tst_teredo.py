@@ -1,5 +1,7 @@
+# coding=utf-8
+
 from teredo import Teredo
-t = Teredo('C:\\Projects\\Learn3')
+t = Teredo('d:\DISC_I')
 
 if False:
     for item in sorted(t.tree.objs, key=lambda x: x.isnode, reverse=True):
@@ -26,9 +28,11 @@ if False:
 if False:
     print(t.root.LikeIt())
 
-print(t.root.instante.__name__)
+# print(t.root.ancestor.root.path)
+# print(t.root.LikeIt())
 
-# print(t.ShowTree())
+print('SHOW: \n\n', t.ShowTree())
+print('SHOW: \n\n', t.root.childs[3].ShowTree())
+# print( "\n".join(["(%d) : %s : %s" % (child.id, child.isnode, child.name) for child in t.root.childs]))
 
-# print(t.ShowTree())
-# print(t.root.ShowTree())
+print('SHOW-FUNC: \n\n', t.root.ShowFunc())
