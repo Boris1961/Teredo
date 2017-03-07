@@ -8,20 +8,51 @@ tree_parsers - словарь { forest:       --- строка --- базово�
                         }
 '''
 
-import os
-class Real_Tree(object):
-    def __init__(self,root_script):
-        self._root = root_script
-    def _childs(self, parent=None):
-        try:
-            # childs = os.listdir(parent.path) if parent else []
-            list_of_childs = [os.path.join(parent.path, element) for element in os.listdir(parent.path)] if parent else [self._root]
-        except:
-            list_of_childs = []
-        return [{'name' : os.path.basename(name),
-                 'isnode' : os.path.isdir(name),
-                 'path': os.path.abspath(name)}
-                for name in list_of_childs]
+
+TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY = "html"
+
+if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "os":
+    import os
+    class Real_Tree(object):
+        def __init__(self, root_script):
+            self._root = root_script
+
+        def _childs(self, parent=None):
+            try:
+                # childs = os.listdir(parent.path) if parent else []
+                list_of_childs = [os.path.join(parent.path, element) for element in
+                                  os.listdir(parent.path)] if parent else [self._root]
+            except:
+                list_of_childs = []
+            return [{'name': os.path.basename(name),
+                     'isnode': os.path.isdir(name),
+                     'path': os.path.abspath(name)}
+                    for name in list_of_childs]
+
+
+if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "html":
+    from bs4 import BeautifulSoup
+    class Real_Tree(object):
+        def __init__(self, root_script):
+            self._root = BeautifulSoup(root_script, 'html.parser')
+
+        def _childs(self, parent=None):
+            list_of_childs = list(parent.tag) if parent else [self._root]
+            return [{'name': element.name,
+                     'isnode': element.name != None,
+                     'tag': element}
+                    for element in list_of_childs]
+
+
+if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "expression":
+    class Expression_Tree(object):
+        pass
+
+
+if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "site":
+    class Site_Tree(object):
+        pass
+
 
 class Tree(Real_Tree):
     def __init__(self, root_script):
@@ -52,12 +83,13 @@ class Tree(Real_Tree):
                 for child in Tree.iterate_tree(element, True):
                     yield child
 
-    def ShowTree(self, file=None):
+    def ShowTree(self, format=None, *args):
         root = Tree.get_root(self)
         str_tree = ''
         for element in Tree.iterate_tree(root):
             if element.isnode:
-                str_tree += '\t' * element.floor + element.name + '\n'
+                str_tree += format(element) if format else '\t' * element.floor + element.name + '\n'
+                # str_tree += format % (getattr(element, arg) for arg in args)  if format else '\t' * element.floor + element.name + '\n'
         return str_tree
 
     def ShowFunc(self):
@@ -74,6 +106,14 @@ class Tree(Real_Tree):
                 str_tree += ')'*(prev_element.floor-element.floor) + ', ' + element.name
             prev_element = element
         return str_tree + ')'*prev_element.floor
+
+    def ShowPostfix(self):
+        pass
+
+    def Select(self, selector):
+        pass
+
+
 
 class Element(Tree):
     def __init__(self, parent, kwargs):
@@ -102,12 +142,7 @@ class Element(Tree):
 
 
 class Teredo(Element):
-    def __init__(self,descriptor):
+    def __init__(self,descriptor,forest="html"):
         self.tree = Tree(descriptor)
         self.root = self.tree.root
         self.root.ancestor = self
-
-
-# tree_parsers = {"os": Real_Tree}
-# forest = "os"
-# builder_class = tree_parsers[forest]

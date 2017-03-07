@@ -1,38 +1,71 @@
 # coding=utf-8
 
-from teredo import Teredo
-t = Teredo('d:\DISC_I')
+from teredo import Teredo, TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY
 
-if False:
-    for item in sorted(t.tree.objs, key=lambda x: x.isnode, reverse=True):
-        try:
-            print('node =', item.isnode,
-                  'id, name: ', item.id, item.name,
-                  'floor:', item.floor)
-        except:
-            print("ERROR: ", item.isnode, item.name, item.childs)
+if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "html":
 
-if False:
-    for ch in t.root.childs:
-        if ch.isnode:
-            print( 'Node: ', ch.name, '(', len(ch.childs), ')' )
-        else:
-            print( 'Term: ', ch.name )
+    html_doc = """
+    <html><head><title>The Dormouse's story</title></head>
+    <body>
+    <p class="title"><b>The Dormouse's story</b></p>
+    <p class="story">Once upon a time there were three little sisters; and their names were
+    <a href="http://example.com/elsie" class="sister" id="link1">Elsie</a>,
+    <a href="http://example.com/lacie" class="sister" id="link2">Lacie</a> and
+    <a href="http://example.com/tillie" class="sister" id="link3">Tillie</a>;
+    and they lived at the bottom of a well.</p>
+    """
 
-    print(t.root.childs[1].ShowTree())
+    import requests
+    url = "https://laminat33.ru/category/laminat/balterio/?page=5"
+    # url = "http://www.mvideo.ru/smartfony-i-svyaz/smartfony-205/f/category=iphone-914"
 
-    for ch in t.root.childs:
-        if ch.isnode:
-            print('DIR = ', ch.name, '\n    Childs:', [c.name for c in ch.childs])
+    html_doc = requests.get(url).content
 
-if False:
-    print(t.root.LikeIt())
+    t = Teredo(html_doc)
 
-# print(t.root.ancestor.root.path)
-# print(t.root.LikeIt())
+    print('SHOW: \n\n', t.ShowTree(lambda x: "\t"*x.floor + "%s(%s)\n" % (x.name, len(x.tag.attrs))))
 
-print('SHOW: \n\n', t.ShowTree())
-print('SHOW: \n\n', t.root.childs[3].ShowTree())
-# print( "\n".join(["(%d) : %s : %s" % (child.id, child.isnode, child.name) for child in t.root.childs]))
+if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "os":
 
-print('SHOW-FUNC: \n\n', t.root.ShowFunc())
+    t = Teredo('d:\DISC_I')
+
+    if False:
+        for item in sorted(t.tree.objs, key=lambda x: x.isnode, reverse=True):
+            try:
+                print('node =', item.isnode,
+                      'id, name: ', item.id, item.name,
+                      'floor:', item.floor)
+            except:
+                print("ERROR: ", item.isnode, item.name, item.childs)
+
+    if False:
+        for ch in t.root.childs:
+            if ch.isnode:
+                print( 'Node: ', ch.name, '(', len(ch.childs), ')' )
+            else:
+                print( 'Term: ', ch.name )
+
+        print(t.root.childs[1].ShowTree())
+
+        for ch in t.root.childs:
+            if ch.isnode:
+                print('DIR = ', ch.name, '\n    Childs:', [c.name for c in ch.childs])
+
+    if False:
+        print(t.root.LikeIt())
+
+    # print(t.root.ancestor.root.path)
+    # print(t.root.LikeIt())
+
+    print('SHOW: \n\n', t.ShowTree())
+    # print('SHOW: \n\n', t.root.childs[3].ShowTree())
+    # print( "\n".join(["(%d) : %s : %s" % (child.id, child.isnode, child.name) for child in t.root.childs]))
+
+    # print('SHOW-FUNC: \n\n', t.root.ShowFunc())
+
+
+
+
+
+
+
