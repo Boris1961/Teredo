@@ -19,15 +19,22 @@ if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "html":
     url = "https://laminat33.ru/category/laminat/balterio/?page=5"
     # url = "http://www.mvideo.ru/smartfony-i-svyaz/smartfony-205/f/category=iphone-914"
 
-    html_doc = requests.get(url).content
+    # html_doc = requests.get(url).content
 
     t = Teredo(html_doc)
 
-    print('SHOW: \n\n', t.ShowTree(lambda x: "\t"*x.floor + "%s(%s)\n" % (x.name, len(x.tag.attrs))))
+    print(t)
+    print(t.root)
+    print(t.root.name)
+
+    #print(t.root)
+    # print(t.root.childs)
+    # print('SHOW: \n\n', t.ShowTree(lambda x: "\t"*x.floor + "%s(%s)\n" % (x.name, len(x.tag.attrs))))
 
 if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "os":
 
-    t = Teredo('d:\DISC_I')
+    # t = Teredo('d:\DISC_I')
+    t = Teredo('/home/boris/My-Projects')
 
     if False:
         for item in sorted(t.tree.objs, key=lambda x: x.isnode, reverse=True):
@@ -57,7 +64,10 @@ if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "os":
     # print(t.root.ancestor.root.path)
     # print(t.root.LikeIt())
 
-    print('SHOW: \n\n', t.ShowTree())
+    # print('SHOW: \n\n', t.ShowTree())
+    print(t)
+    print(t.root)
+
     # print('SHOW: \n\n', t.root.childs[3].ShowTree())
     # print( "\n".join(["(%d) : %s : %s" % (child.id, child.isnode, child.name) for child in t.root.childs]))
 
