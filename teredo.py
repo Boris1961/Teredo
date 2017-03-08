@@ -36,6 +36,9 @@ if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "html":
         def __init__(self, root_script):
             self._root = BeautifulSoup(root_script, 'html.parser')
 
+        def __str__(self):
+            return str(self.tag)
+
         def _childs(self, parent=None):
             list_of_childs = list(parent.tag) if parent else [self._root]
             return [{'name': element.name,
@@ -53,19 +56,20 @@ if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "site":
     class Site_Tree(object):
         pass
 
-
 class Tree(Real_Tree):
     def __init__(self, root_script):
+        # рекурсивно проходим по дереву и генерим все его элементы
         def walk(parent):
             for child_dict in self._childs(parent):
-                child_obj = Element(parent, child_dict)
-                child_obj.id = len(self.elements)
-                self.elements += [child_obj]
-                parent.childs += [child_obj]
-                if child_obj.isnode:
-                    walk(child_obj)
-        # self.str_tree = Real_Tree(root_script)
-        self.root = Element(None, Real_Tree(root_script)._childs()[0])
+                child = Element(parent, child_dict)
+                child.id = len(self.elements)
+                child.root = self.root
+                self.elements.append(child)
+                parent.childs.append(child)
+                if child.isnode:
+                    walk(child)
+        self.root = Element(None, Real_Tree(root_script)._childs()[0]) # генерим корневой элемент дерева
+        self.root.id = 0
         self.elements = [self.root]
         walk(self.root)
 
@@ -73,6 +77,7 @@ class Tree(Real_Tree):
     def get_root(obj):
         return obj.root if obj.__class__.__name__ == 'Teredo' else obj
 
+    # итератор дерева
     @staticmethod
     def iterate_tree(root, touch=False):
         if not touch:
@@ -83,13 +88,14 @@ class Tree(Real_Tree):
                 for child in Tree.iterate_tree(element, True):
                     yield child
 
-    def ShowTree(self, format=None, *args):
+    def ShowTree(self, format=None):
         root = Tree.get_root(self)
         str_tree = ''
+        if not format:
+            format = lambda x: '\t' * x.floor + x.name + '\n'
         for element in Tree.iterate_tree(root):
             if element.isnode:
-                str_tree += format(element) if format else '\t' * element.floor + element.name + '\n'
-                # str_tree += format % (getattr(element, arg) for arg in args)  if format else '\t' * element.floor + element.name + '\n'
+                str_tree += format(element)
         return str_tree
 
     def ShowFunc(self):
@@ -122,23 +128,26 @@ class Element(Tree):
             self.parent = parent
         else:
             self.floor = 0
+            self.id = 0
             self.parent = None
         for attr, value in kwargs.items():
             setattr(self, attr, value)
         self.childs = []
 
-    def neighbor(self,distance=1):
+    def Next(self,distance=1):
         if not self.parent: return None
-        indx = self.parent.childs[self]
-        return self.parent.childs[indx+distance]
+        return self.parent.childs[self.parent.childs.index(self)+distance]
 
-    def LikeIt(self, *elem_criteria, **elem_filter):
+    def Previous(self,distance=1):
+        if not self.parent: return None
+        return self.parent.childs[self.parent.childs.index(self)+distance]
+
+    def Down(self):
+        return self.childs[0]
+
+    def LikeIt(self, elem_pattern=lambda x: x.name, elem_filter=lambda x: x.isnode):
         print(super())
-        if not elem_filter:
-            elem_filter = {'isnode':True}
-        if not elem_criteria:
-            elem_criteria = ['floor']
-        # print(t.elements)
+        return [element for element in Tree.iterate_tree(self.root) if elem_filter(element) and elem_pattern(element) == elem_pattern(self)]
 
 
 class Teredo(Element):
@@ -146,3 +155,6 @@ class Teredo(Element):
         self.tree = Tree(descriptor)
         self.root = self.tree.root
         self.root.ancestor = self
+
+    def __getattr__(self, item):
+        print(getattr(self.root,item))
