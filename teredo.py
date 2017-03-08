@@ -66,6 +66,7 @@ class Tree(Real_Tree):
                     walk(child_obj)
         # self.str_tree = Real_Tree(root_script)
         self.root = Element(None, Real_Tree(root_script)._childs()[0])
+        self.root.id = 0
         self.elements = [self.root]
         walk(self.root)
 
@@ -146,3 +147,6 @@ class Teredo(Element):
         self.tree = Tree(descriptor)
         self.root = self.tree.root
         self.root.ancestor = self
+
+    def __getattr__(self, item):
+        print(getattr(self.root,item))
