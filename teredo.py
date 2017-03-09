@@ -1,21 +1,24 @@
 '''
 Классовая зависимость:  Real_tree -> Tree -> Element -> Teredo
-
 Словарь устанавливает соответствие между базовым множеством объектов и его классом-обработчиком
-
 tree_parsers - словарь { forest:       --- строка --- базовое множество объектов (лес): "html", "site", "os"...
                         builder_class  --- класс --- атрибуты и методы базового множества
                         }
 '''
 
 
-TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY = "html"
+TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY = "os"
 
 if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "os":
     import os
     class Real_Tree(object):
         def __init__(self, root_script):
             self._root = root_script
+
+        def __str__(self):
+            return object.__str__(self.path)
+
+        __repr__ = __str__
 
         def _childs(self, parent=None):
             try:
@@ -37,7 +40,7 @@ if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "html":
             self._root = BeautifulSoup(root_script, 'html.parser')
 
         def __str__(self):
-            return str(self.tag)
+            return object.__str__(self.tag)
 
         def _childs(self, parent=None):
             list_of_childs = list(parent.tag) if parent else [self._root]
@@ -58,8 +61,8 @@ if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "site":
 
 class Tree(Real_Tree):
     def __init__(self, root_script):
-        # рекурсивно проходим по дереву и генерим все его элементы
         def walk(parent):
+            # рекурсивно проходим по дереву и генерим все его элементы
             for child_dict in self._childs(parent):
                 child = Element(parent, child_dict)
                 child.id = len(self.elements)
@@ -68,6 +71,7 @@ class Tree(Real_Tree):
                 parent.childs.append(child)
                 if child.isnode:
                     walk(child)
+
         self.root = Element(None, Real_Tree(root_script)._childs()[0]) # генерим корневой элемент дерева
         self.root.id = 0
         self.elements = [self.root]
@@ -134,19 +138,39 @@ class Element(Tree):
             setattr(self, attr, value)
         self.childs = []
 
-    def Next(self,distance=1):
-        if not self.parent: return None
-        return self.parent.childs[self.parent.childs.index(self)+distance]
+    def __getattr__(self, item):
+        if not self.isnode:
+            return None
 
-    def Previous(self,distance=1):
-        if not self.parent: return None
-        return self.parent.childs[self.parent.childs.index(self)+distance]
+        nodes = [child for child in self.parent.childs if child.isnode] if self.parent else [self]
 
-    def Down(self):
-        return self.childs[0]
+        if item.lower() == 'next':
+            try:
+                return nodes[nodes.index(self):][1]
+            except:
+                return None
+
+        if item.lower() == 'previous':
+            try:
+                return nodes[:nodes.index(self)][-1]
+            except:
+                return None
+
+        if item.lower() == 'down':
+            try:
+                return [child for child in self.childs if child.isnode][0]
+            except:
+                return None
+
+        if item.lower() == 'up':
+            try:
+                return self.parent
+            except:
+                return None
+
+        return getattr(self.root, item)
 
     def LikeIt(self, elem_pattern=lambda x: x.name, elem_filter=lambda x: x.isnode):
-        print(super())
         return [element for element in Tree.iterate_tree(self.root) if elem_filter(element) and elem_pattern(element) == elem_pattern(self)]
 
 
@@ -157,4 +181,4 @@ class Teredo(Element):
         self.root.ancestor = self
 
     def __getattr__(self, item):
-        print(getattr(self.root,item))
+        return getattr(self.root, item)
