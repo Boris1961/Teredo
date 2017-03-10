@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from teredo import Teredo, TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY
+from teredo import *
 
 if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "html":
 
@@ -19,20 +19,19 @@ if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "html":
     url = "https://laminat33.ru/category/laminat/balterio/?page=5"
     # url = "http://www.mvideo.ru/smartfony-i-svyaz/smartfony-205/f/category=iphone-914"
 
-    html_doc = requests.get(url).content
+    # html_doc = requests.get(url).content
 
     t = Teredo(html_doc)
 
-    print('SHOW: \n\n', t.ShowTree(lambda x: "\t"*x.floor + "%s(%s)\n" % (x.name, len(x.tag.attrs))))
-    print('ShowTree: \n\n', t.ShowTree())
-    print('ShowFunc: \n\n', t.showfunc)
-    print('SHOW: \n\n', t.ShowTree(lambda x: "\t" * x.floor + "%s(%s)\n" % (x.name, len(x.tag.attrs))))
+    print(t.root.get_pattern())
+    # print('SHOW: \n\n', t.ShowTree(lambda x: "\t"*x.floor + "%s(%s)\n" % (x.name, len(x.tag.attrs))))
+    # print('ShowTree: \n\n', t.showtree)
+    # print('ShowFunc: \n\n', t.showfunc)
 
+
+    # print('SHOW: \n\n', t.ShowTree(lambda x: "\t" * x.floor + "%s(%s)\n" % (x.name, len(x.tag.attrs))))
     # print('ShowFunc: \n\n', t.down)
-
     # print('SHOW: \n\n', t.down.down.ShowTree(lambda x: "\t" * x.floor + "%s(%s)\n" % (x.name, len(x.tag.attrs))))
-
-    # print(t.root.tag)
     # print('=====',t.tree.elements[13].childs[1])
     # print('=====',t.tree.elements[13].childs[1].LikeIt()[0])
     # print('=====',t.tree.elements[13].childs[1].LikeIt()[1])

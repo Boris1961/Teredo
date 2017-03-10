@@ -6,7 +6,6 @@ tree_parsers - словарь { forest:       --- строка --- базово�
                         }
 '''
 
-
 TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY = "html"
 
 if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "os":
@@ -41,6 +40,8 @@ if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "html":
 
         def __str__(self):
             return object.__str__(self.tag)
+
+        __repr__ = __str__
 
         def _childs(self, parent=None):
             list_of_childs = list(parent.tag) if parent else [self._root]
@@ -89,7 +90,7 @@ class Tree(Real_Tree):
                 for child in Tree.iterate_tree(element, True):
                     yield child
 
-    @staticmethod
+    # @staticmethod
     def get_pattern(self, wrapper_body=lambda x:x.name, wrapper_open=lambda x:'(',  wrapper_between=lambda x:',', wrapper_close=lambda x:')', filterer=lambda x:x.isnode):
         root = self if self.parent else self.root
         prev_element = self.root
@@ -107,27 +108,11 @@ class Tree(Real_Tree):
             prev_element = element
         return str_tree + wrapper_close(element)*prev_element.floor
 
-
-    def ShowTree(self):
-        root = self if self.parent else self.root
-        return Tree.get_pattern(root,
-                         wrapper_body=lambda x:'\t' * x.floor + x.name + '\n',
-                         wrapper_open=lambda x:'',
-                         wrapper_between=lambda x:'',
-                         wrapper_close=lambda x:'')
-
-    def ShowFunc(self):
-        root = self if self.parent else self.root
-        return Tree.get_pattern(root)
-
-
     def ShowPostfix(self):
         pass
 
     def Select(self, selector):
         pass
-
-
 
 class Element(Tree):
     def __init__(self, parent, kwargs):
@@ -173,8 +158,14 @@ class Element(Tree):
                 return None
 
         if item.lower() == 'showfunc':
-            root = self if self.parent else self.root
-            return Tree.get_pattern(root)
+            return self.get_pattern()
+
+        if item.lower() == 'showtree':
+            return self.get_pattern(wrapper_body=lambda x: '\t' * x.floor + x.name + '\n',
+                                    wrapper_open=lambda x: '',
+                                    wrapper_between=lambda x: '',
+                                    wrapper_close=lambda x: '')
+
 
         return getattr(self.root, item)
 
