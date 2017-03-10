@@ -7,7 +7,7 @@ tree_parsers - словарь { forest:       --- строка --- базово�
 '''
 
 
-TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY = "os"
+TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY = "html"
 
 if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "os":
     import os
@@ -44,8 +44,8 @@ if TYPE_OF_FOREST_OF_TREES_FOR_PARSING_THEM_BY_ME_FOR_ENJOY == "html":
 
         def _childs(self, parent=None):
             list_of_childs = list(parent.tag) if parent else [self._root]
-            return [{'name': element.name,
-                     'isnode': element.name != None,
+            return [{'name': element.name if element.name != None else '<Text>',
+                     'isnode': element.name != None ,
                      'tag': element}
                     for element in list_of_childs]
 
@@ -74,12 +74,9 @@ class Tree(Real_Tree):
 
         self.root = Element(None, Real_Tree(root_script)._childs()[0]) # генерим корневой элемент дерева
         self.root.id = 0
+        self.root.root = self.root
         self.elements = [self.root]
         walk(self.root)
-
-    @staticmethod
-    def get_root(obj):
-        return obj.root if obj.__class__.__name__ == 'Teredo' else obj
 
     # итератор дерева
     @staticmethod
@@ -92,30 +89,37 @@ class Tree(Real_Tree):
                 for child in Tree.iterate_tree(element, True):
                     yield child
 
-    def ShowTree(self, format=None):
-        root = Tree.get_root(self)
-        str_tree = ''
-        if not format:
-            format = lambda x: '\t' * x.floor + x.name + '\n'
+    @staticmethod
+    def get_pattern(self, wrapper_body=lambda x:x.name, wrapper_open=lambda x:'(',  wrapper_between=lambda x:',', wrapper_close=lambda x:')', filterer=lambda x:x.isnode):
+        root = self if self.parent else self.root
+        prev_element = self.root
         for element in Tree.iterate_tree(root):
-            if element.isnode:
-                str_tree += format(element)
-        return str_tree
+            if not filterer(element):
+                continue
+            elif element == root:
+                str_tree = wrapper_body(root)
+            elif prev_element.floor < element.floor :
+                str_tree += wrapper_open(element) + wrapper_body(element)
+            elif prev_element.floor == element.floor:
+                str_tree += wrapper_between(element) + wrapper_body(element)
+            else:
+                str_tree += wrapper_close(element)*(prev_element.floor-element.floor) + wrapper_between(element) + wrapper_body(element)
+            prev_element = element
+        return str_tree + wrapper_close(element)*prev_element.floor
+
+
+    def ShowTree(self):
+        root = self if self.parent else self.root
+        return Tree.get_pattern(root,
+                         wrapper_body=lambda x:'\t' * x.floor + x.name + '\n',
+                         wrapper_open=lambda x:'',
+                         wrapper_between=lambda x:'',
+                         wrapper_close=lambda x:'')
 
     def ShowFunc(self):
-        root = Tree.get_root(self)
-        prev_element = root
-        for element in Tree.iterate_tree(root):
-            if element == root:
-                str_tree = root.name
-            elif prev_element.floor < element.floor :
-                str_tree += '(' + element.name
-            elif prev_element.floor == element.floor:
-                str_tree += ',' + element.name
-            else:
-                str_tree += ')'*(prev_element.floor-element.floor) + ', ' + element.name
-            prev_element = element
-        return str_tree + ')'*prev_element.floor
+        root = self if self.parent else self.root
+        return Tree.get_pattern(root)
+
 
     def ShowPostfix(self):
         pass
@@ -167,6 +171,10 @@ class Element(Tree):
                 return self.parent
             except:
                 return None
+
+        if item.lower() == 'showfunc':
+            root = self if self.parent else self.root
+            return Tree.get_pattern(root)
 
         return getattr(self.root, item)
 
