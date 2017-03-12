@@ -24,8 +24,8 @@ t = Teredo(html_doc, 'html')
 print(t)
 
 #print(t.root.get_pattern())
-#print('ShowTree: \n\n', t.showtree)
-#print('ShowFunc: \n\n', t.showfunc)
+print('ShowTree: \n\n', t.showtree)
+print('ShowFunc: \n\n', t.down.showfunc)
 
 
 # print(t.down.get_pattern(wrapper_body=lambda x: "%s(%s)" % (x.name, len(x.tag.attrs))))

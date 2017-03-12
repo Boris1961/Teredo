@@ -14,7 +14,6 @@ class Real_Tree_OS(object):
         self._root = root_script
 
     def _str(self):
-        # return object.__str__(self.path)
         return self.path
 
     def _childs(self, parent=None):
@@ -43,8 +42,11 @@ class Real_Tree_HTML(object):
                  'isnode': element.name != None ,
                  'tag': element}
                 for element in list_of_childs]
-
-''' Класс-посредник между Teredo и Real_Tree_CLASSes '''
+'''
+     *********************************************************************
+     ****** Класс-посредник между Teredo и Real_Tree_CLASSes *************
+     *********************************************************************
+'''
 
 class Real_Tree(object):
     def __init__(self, root_script, class_handler):
@@ -94,18 +96,17 @@ class Tree(Real_Tree):
 
     # @staticmethod
     def get_pattern(self, wrapper_body=lambda x:x.name, wrapper_open=lambda x:'(',  wrapper_between=lambda x:',', wrapper_close=lambda x:')', filterer=lambda x:x.isnode):
-        root = self if self.parent else self.root
-        prev_element = self.root
-        for element in Tree.iterate_tree(root):
+        prev_element = self
+        for element in Tree.iterate_tree(self):
             if not filterer(element):
                 continue
-            elif element == root:
-                str_tree = wrapper_body(root)
-            elif prev_element.floor < element.floor :
+            elif element == self:
+                str_tree = wrapper_body(self)
+            elif prev_element.floor < element.floor :       # вниз по дереву
                 str_tree += wrapper_open(element) + wrapper_body(element)
-            elif prev_element.floor == element.floor:
+            elif prev_element.floor == element.floor:       # вправо по дереву
                 str_tree += wrapper_between(element) + wrapper_body(element)
-            else:
+            else:                                           # вверх по дереву
                 str_tree += wrapper_close(element)*(prev_element.floor-element.floor) + wrapper_between(element) + wrapper_body(element)
             prev_element = element
         return str_tree + wrapper_close(element)*prev_element.floor
@@ -174,7 +175,8 @@ class Element(Tree):
         return [element for element in Tree.iterate_tree(self.root) if elem_filter(element) and elem_pattern(element) == elem_pattern(self)]
 
 
-''' Словарь устанавливает соответствие между базовым множеством объектов и его классом-обработчиком
+'''
+        Словарь устанавливает соответствие между базовым множеством объектов и его классом-обработчиком
         tree_parsers - словарь { forest:       --- строка --- базовое множество объектов (лес): "html", "site", "os"...
                             builder_class  --- класс --- атрибуты и методы базового множества
 '''
