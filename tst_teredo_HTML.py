@@ -24,8 +24,14 @@ t = Teredo(html_doc, 'html')
 print(t)
 
 #print(t.root.get_pattern())
-print('ShowTree: \n\n', t.showtree)
-print('ShowFunc: \n\n', t.down.showfunc)
+#print('ShowTree: \n\n', t.showtree)
+#print('ShowFunc: \n\n', t.down.showfunc)
+
+li = t.root.get_pattern_all().items()
+li = sorted([(k.name, v) for (k,v) in li])
+print(li)
+#for (k,v) in li:
+#    print(k.name, '  ---->  ', v, '\n')
 
 
 # print(t.down.get_pattern(wrapper_body=lambda x: "%s(%s)" % (x.name, len(x.tag.attrs))))

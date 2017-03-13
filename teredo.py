@@ -8,6 +8,7 @@ class Real_Tree_EXPRESSION(object):
 class Real_Tree_WEB(object):
     pass
 
+
 import os
 class Real_Tree_OS(object):
     def __init__(self, root_script):
@@ -28,9 +29,10 @@ class Real_Tree_OS(object):
                  'path': os.path.abspath(name)}
                 for name in list_of_childs]
 
-from bs4 import BeautifulSoup
 class Real_Tree_HTML(object):
+
     def __init__(self, root_script):
+        from bs4 import BeautifulSoup
         self._root = BeautifulSoup(root_script, 'html.parser')
 
     def _str(self):
@@ -42,32 +44,21 @@ class Real_Tree_HTML(object):
                  'isnode': element.name != None ,
                  'tag': element}
                 for element in list_of_childs]
+
 '''
-     *********************************************************************
-     ****** Класс-посредник между Teredo и Real_Tree_CLASSes *************
-     *********************************************************************
+Класс-ДЕРЕВО Tree:
+    Атрибуты:   root : type=Element: корневой элемент дерева
+                elements: type=list: список всех элементов дерева
+                handler: type=type: класс-контейнер user-дерева
+
+
 '''
 
-class Real_Tree(object):
-    def __init__(self, root_script, class_handler):
-        self.handler = class_handler
-        class_handler.__init__(self,root_script)
-
-
-    def __str__(self):
-        return object.__str__(self.root.real_tree.handler._str(self))
-
-    __repr__ = __str__
-
-    def _childs(self, parent=None):
-        return self.handler._childs(self,parent)
-
-
-class Tree(Real_Tree):
+class Tree(object):
     def __init__(self, root_script, class_handler):
         def walk(parent):
             # рекурсивно проходим по дереву и генерим все его элементы
-            for child_dict in self.root.real_tree._childs(parent):
+            for child_dict in class_handler._childs(self,parent):
                 child = Element(parent, child_dict)
                 child.id = len(self.elements)
                 child.root = self.root
@@ -75,13 +66,19 @@ class Tree(Real_Tree):
                 parent.childs.append(child)
                 if child.isnode:
                     walk(child)
-        real_tree = Real_Tree(root_script, class_handler)
-        self.root = Element(None, real_tree._childs()[0]) # генерим корневой элемент дерева
-        self.root.id = 0
-        self.root.real_tree = real_tree
-        self.root.root = self.root
-        self.elements = [self.root]
-        walk(self.root)
+        class_handler.__init__(self,root_script)
+        root = Element(None, class_handler._childs(self)[0]) # генерим корневой элемент дерева
+        self.handler = class_handler
+        self.root = root.root = root
+        self.elements = [root]
+        root.id = 0
+        root.tree = self
+        walk(root)
+
+    def __str__(self):
+        return object.__str__(self.root.tree.handler._str(self))
+
+    __repr__ = __str__
 
     # итератор дерева
     @staticmethod
@@ -95,6 +92,7 @@ class Tree(Real_Tree):
                     yield child
 
     # @staticmethod
+
     def get_pattern(self, wrapper_body=lambda x:x.name, wrapper_open=lambda x:'(',  wrapper_between=lambda x:',', wrapper_close=lambda x:')', filterer=lambda x:x.isnode):
         prev_element = self
         for element in Tree.iterate_tree(self):
@@ -110,6 +108,23 @@ class Tree(Real_Tree):
                 str_tree += wrapper_close(element)*(prev_element.floor-element.floor) + wrapper_between(element) + wrapper_body(element)
             prev_element = element
         return str_tree + wrapper_close(element)*prev_element.floor
+
+    def get_pattern_all(self, wrapper_body=lambda x:x.name, wrapper_open=lambda x:'(',  wrapper_between=lambda x:',', wrapper_close=lambda x:')', filterer=lambda x:x.isnode):
+
+        def proc_tuple(element, dict_patt):
+            list_childs = list(filter(filterer,element.childs))
+            list_tree = [wrapper_body(element), wrapper_open(element)]
+            for child in list_childs:
+                list_tree += proc_tuple(child,dict_patt)
+                if list_childs[-1] != child:
+                    list_tree.append(wrapper_between(child))
+            list_tree.append(wrapper_close(element))
+            dict_patt[element] = ''.join(list_tree)
+            return list_tree
+
+        dict_patt = dict()
+        proc_tuple(self, dict_patt)
+        return dict_patt
 
     def ShowPostfix(self):
         pass
