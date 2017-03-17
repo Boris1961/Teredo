@@ -14,24 +14,26 @@ and they lived at the bottom of a well.</p>
 """
 
 import requests
-url = "https://laminat33.ru/category/laminat/balterio/?page=5"
+# url = "https://laminat33.ru/category/laminat/balterio/?page=5"
 # url = "http://www.mvideo.ru/smartfony-i-svyaz/smartfony-205/f/category=iphone-914"
 
-# html_doc = requests.get(url).content
+url = "http://www.akrit-ceramica.ru/catalog/lkeramoplit/zunitile/"
 
 t = Teredo(html_doc, 'html')
 
-print(t)
+# print(t)
 
 #print(t.root.get_pattern())
-#print('ShowTree: \n\n', t.showtree)
-#print('ShowFunc: \n\n', t.down.showfunc)
 
-li = t.root.get_pattern_all().items()
-li = sorted([(k.name, v) for (k,v) in li])
-print(li)
-#for (k,v) in li:
-#    print(k.name, '  ---->  ', v, '\n')
+# print('ShowTree: \n\n', t.showtree)
+# print('ShowFunc: \n\n', t.down.showfunc)
+
+ddict = t.root.get_pattern(dist=dict())
+
+# li = t.root.get_pattern().items()
+dlist = sorted(['<'+ str(key.floor)+'>'+ val for (key,val) in ddict.items() if key.floor > 1])
+for item in dlist:
+    print(item, '\n')
 
 
 # print(t.down.get_pattern(wrapper_body=lambda x: "%s(%s)" % (x.name, len(x.tag.attrs))))

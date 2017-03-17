@@ -5,11 +5,11 @@ from teredo import *
 t = Teredo('d:\DISC_I\EDIT','os')
 
 
-#print('ShowTree: \n\n', t.showtree)
+print('ShowTree: \n\n', t.showtree)
 #print('ShowFunc: \n\n', t.showfunc)
 
-print(t)
-print(t.down)
+print(t.get_postfix())
+# print(t.down)
 
 
 '''
