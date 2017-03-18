@@ -23,7 +23,7 @@ demo_menu = """
          9: .... (постфиксный вид): tree_element.showpostfix
         10: нарисовать путь к гнезду от корня: tree_element.showpath
         11: показать список дочерних гнёзд tree_element.childs
-        12: ....to be continue
+        12: пример пользовательского дерева (Tree_Typos)
 
         Что делать:
 """
@@ -39,7 +39,7 @@ while act != 0:
             continue
     else:
         try:
-            act = input()
+            act = input('...')
             if act == '':
                 try:
                     act = int(input(demo_menu))
@@ -58,10 +58,13 @@ while act != 0:
             item = int(input("Дерево:\n 1. HTML\n 2.OS\n"))-1
             if item == 0 or item == 1:
                 desc = ['html','os'][item]
-                tree_root = input(["HTML или URL:", "Имя папки:"][item])
-                element_teredo = Teredo(tree_root, desc)
+                tree_root = input(["HTML или URL:\n", "Имя папки:"][item])
+                try:
+                    element_teredo = Teredo(tree_root, desc)
+                except:
+                    continue
                 element_to_demo = element_teredo
-                str_teredo = 'Teredo(%s, %s)' % (tree_root, desc)
+                str_teredo = 'Teredo("%s", "%s")' % (tree_root, desc)
                 str_to_demo = str_teredo
                 break
 
@@ -104,6 +107,13 @@ while act != 0:
     elif act == 11:
         element_to_demo = element_teredo.childs
         str_to_demo = str_teredo + '.childs'
+
+    elif act == 12:
+        from tst_teredo_userclass import *
+        element_teredo = Teredo('type', Tree_Typos)
+        str_teredo = "Teredo('type', Tree_Typos)"
+        element_to_demo = element_teredo.showtree
+        str_to_demo = str_teredo
 
     print('\n%s = \n%s' % (str_to_demo, element_to_demo))
     if element_to_demo.__class__.__name__ == 'TeredoElement':

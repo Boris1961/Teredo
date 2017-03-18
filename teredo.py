@@ -1,14 +1,3 @@
-'''
-Классовая зависимость:  Real_tree -> Tree -> TeredoElement -> Teredo
-'''
-
-class Tree_EXPRESSION(object):
-    pass
-
-class Tree_WEB(object):
-    pass
-
-
 import os
 class Tree_OS(object):
     def __init__(self, root_script):
@@ -30,7 +19,6 @@ class Tree_OS(object):
                 for name in list_of_childs]
 
 class Tree_HTML(object):
-
     def __init__(self, root_script):
         from bs4 import BeautifulSoup
         import requests
@@ -52,15 +40,28 @@ class Tree_HTML(object):
                  'tag': element}
                 for element in list_of_childs]
 
-'''
-Класс TeredoTree: абстрактное дерево:
-    Атрибуты:   root : type=TeredoElement: корневой элемент дерева
-                elements: type=list: список всех элементов (объектов класса TeredoElement) дерева
-                handler: type=type: класс-контейнер user-дерева (например, встроенные Tree_HTML или Tree_OS)
+class Tree_EXPRESSION(object):
+    pass
 
+class Tree_WEB(object):
+    pass
 
 '''
+    Ниже - классы абстрактного Teredo-дерева
+    Классовая зависимость:  TeredoTree -> TeredoElement -> Teredo
+'''
+
 class TeredoTree(object):
+    """
+    Класс:
+        TeredoTree: абстрактное дерево:
+    Атрибуты:
+        .root : type=TeredoElement: корневой элемент дерева
+        .elements: type=list: список всех элементов (объектов класса TeredoElement) дерева
+        .handler: type=type: класс-контейнер user-дерева (например, встроенные Tree_HTML или Tree_OS)
+
+
+    """
     def __init__(self, root_script, class_handler):
         def walk(parent):
             # рекурсивно проходим по дереву и генерим все его элементы
@@ -97,10 +98,19 @@ class TeredoTree(object):
                 for child in TeredoTree.iterate_tree(element, True):
                     yield child
 
-    def get_pattern(self, dist=list(), wrapper_body=lambda x:x.name, wrapper_open=lambda x:'(',  wrapper_between=lambda x:',', wrapper_close=lambda x:')', filterer=lambda x:x.isnode):
+    def get_pattern(self, dist=list(), wrapper_element=lambda x:x.name, wrapper_open=lambda x:'(',  wrapper_between=lambda x:',', wrapper_close=lambda x:')', filterer=lambda x:x.isnode):
+        """
+        Метод:
+            get_pattern(self, dist=list(), wrapper_element=lambda x:x.name, wrapper_open=lambda x:'(',  wrapper_between=lambda x:',', wrapper_close=lambda x:')', filterer=lambda x:x.isnode):
+        Аргументы:
+            dist: type=list или dict: get_pattern генерит и возвращает либо строку-патерн элемента self, либо словарь патернов всех узлов поддерева self {element:pattern}
+            wrapper_element, wrapper_open, wrapper_between, wrapper_close: функции форматирования вывода соответственно - самого узла, начала ветки, промежутка между узлами, конца ветки
+            filterer: функция-фильтр поддерева self
+        """
+
         def iterate_tree(element, dist):
             list_childs = list(filter(filterer,element.childs))
-            str_tree = wrapper_body(element) + wrapper_open(element)
+            str_tree = wrapper_element(element) + wrapper_open(element)
             for child in list_childs:
                 str_tree += iterate_tree(child,dist)
                 if list_childs[-1] != child:
@@ -115,10 +125,10 @@ class TeredoTree(object):
         else:
             return dist
 
-    def get_postfix(self, wrapper_body=lambda x:x.name):
+    def get_postfix(self, wrapper_element=lambda x:x.name):
         post_list = []
         for element in TeredoTree.iterate_tree(self):
-            post_list = (['func(%i)<%s>' % (len(element.childs), wrapper_body(element))] if element.isnode else ['arg<%s>' % wrapper_body(element)]) + post_list
+            post_list = (['func(%i)<%s>' % (len(element.childs), wrapper_element(element))] if element.isnode else ['arg<%s>' % wrapper_element(element)]) + post_list
         return post_list
 
 
@@ -129,6 +139,21 @@ class TeredoTree(object):
         pass
 
 class TeredoElement(TeredoTree):
+    """
+    Класс:
+        TeredoElement(TeredoTree) = элемент (узел) Teredo-дерева.
+    Атрибуты:
+        .root : корневой элемент дерева (класс TeredoElement)
+        .next : соседний по ветке элемент справа (fault:None)
+        .previous : соседний по ветке элемент слева (fault:None)
+        .down : первый элемент в дочернем списке (fault:None)
+        .up : родительский элемент(fault:None)
+        .showfunc : функциональная (префиксная) форма поддерева (строка)
+        .showtree : схематическая (древесная) форма поддерева (строка)
+        .showpostfix : постфиксная) форма поддерева (строка)
+        .showpath : путь к элементу от корня (список)
+    """
+
     def __init__(self, parent, kwargs):
         if parent:
             self.floor = parent.floor + 1
@@ -175,13 +200,13 @@ class TeredoElement(TeredoTree):
             return self.get_pattern()
 
         if item.lower() == 'showtree':
-            return self.get_pattern(wrapper_body=lambda x: '\t' * x.floor + x.name + '\n',
+            return self.get_pattern(wrapper_element=lambda x: '\t' * x.floor + x.name + '\n',
                                     wrapper_open=lambda x: '',
                                     wrapper_between=lambda x: '',
                                     wrapper_close=lambda x: '')
 
         if item.lower() == 'showpostfix':
-            return self.get_postfix(wrapper_body=lambda x:x.name)
+            return self.get_postfix(wrapper_element=lambda x:x.name)
 
         if item.lower() == 'showpath':
             element = self
@@ -196,19 +221,38 @@ class TeredoElement(TeredoTree):
     def LikeIt(self, elem_pattern=lambda x: x.name, elem_filter=lambda x: x.isnode):
         return [element for element in TeredoTree.iterate_tree(self.root) if elem_filter(element) and elem_pattern(element) == elem_pattern(self)]
 
-
-'''
-    Teredo-дерево.
-    Атрибут экземпляра: .root = корневой элемент дерева (класс TeredoElement)
-'''
 class Teredo(TeredoElement):
-    def __init__(self,descriptor,forest="html"):
-        if forest.lower() == 'html':
+    """
+    Класс:
+        Teredo(TeredoElement) = Teredo-дерево.
+    Атрибут:
+        .root = корневой элемент дерева (класс TeredoElement)
+    Метод __init__:
+        Аргументы:
+            descriptor: type=str: дескриптор корневого элемента дерева(например: "C:/TOOLS" при forester="os", или "https:/pythonworld.ru/" при forester="html")
+            forester: type=str или type: передает класс дерева (лес) - строку-дескриптор встроенного дерева ("html", "os") или класс-обработчик <class_handler> пользовательского дерева
+                Протокол класса <class_handler>:
+                    class <class_handler>(object):
+                        def __init__(self, root_script):
+                            self._root = <normalized_root_name> (root_script)
+
+                        def _str(self):
+                            return <formatted_name> (self)
+
+                        def _childs(self, parent=None): # parent=None означает, что self - корневой узел
+                            ...script generated <list_of_childs>...
+                            return [{'<attr1>': <get_attr1>(name), ..., '<attrN>': <get_attrN>(name)} for name in <list_of_childs>]
+                    Имена по протоколу : _root , _str, _childs
+
+    """
+    def __init__(self,descriptor,forester="html"):
+
+        if forester.__class__.__name__ == 'type':
+            self.tree = TeredoTree(descriptor, forester)
+        elif forester.lower() == 'html':
             self.tree = TeredoTree(descriptor, Tree_HTML)
-        if forest.lower() == 'os':
+        elif forester.lower() == 'os':
             self.tree = TeredoTree(descriptor, Tree_OS)
-        if forest.__class__.__name__ == 'type':
-            self.tree = TeredoTree(descriptor, forest)
 
         self.root = self.tree.root
         self.root.ancestor = self
