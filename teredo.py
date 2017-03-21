@@ -174,13 +174,14 @@ class TeredoElement(TeredoTree):
 
         if item.lower() == 'next':
             try:
-                return nodes[nodes.index(self):][1]
+                # return nodes[nodes.index(self):][1]
+                return nodes[nodes.index(self)+1]
             except:
                 return None
 
         if item.lower() == 'previous':
             try:
-                return nodes[:nodes.index(self)][-1]
+                return nodes[nodes.index(self)-1]
             except:
                 return None
 
