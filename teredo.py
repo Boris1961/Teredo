@@ -40,6 +40,31 @@ class Tree_HTML(object):
                  'tag': element}
                 for element in list_of_childs]
 
+class Tree_PY_OBJ(object):
+    def __init__(self, root_script):
+        self._root = root_script
+    def _str(self):
+        return self.name
+    def _childs(self, parent=None):
+        def iterable(x):
+            try:
+                iter(x)
+                return True
+            except:
+                return False
+        if parent is None:
+            list_of_childs = [self._root]
+        else:
+            if parent.name != 'str':
+                list_of_childs = list(parent.content)
+            else:
+                list_of_childs = []
+        return [{'name': item.__class__.__name__,
+                 'content': item,
+                 'isnode': iterable(item)}
+                for item in list_of_childs]
+
+
 class Tree_EXPRESSION(object):
     pass
 
@@ -254,6 +279,8 @@ class Teredo(TeredoElement):
             self.tree = TeredoTree(descriptor, Tree_HTML)
         elif forester.lower() == 'os':
             self.tree = TeredoTree(descriptor, Tree_OS)
+        elif forester.lower() == 'py.obj':
+            self.tree = TeredoTree(descriptor, Tree_PY_OBJ)
 
         self.root = self.tree.root
         self.root.ancestor = self

@@ -61,4 +61,3 @@ class Tree_Typos(object):
         return [{'name': name,
                  'isnode': True}
                 for name in list_of_childs]
-
